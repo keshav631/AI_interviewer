@@ -6,7 +6,7 @@ import {
   getSessions,
   reset,
   deleteSession,
-} from "../features/sessions/sessionSlice";
+} from "../features/session/sessionSlice";
 import { toast } from "react-toastify";
 import SessionCard from "../components/SessionCard";
 

@@ -1,7 +1,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { socketUpdateSession } from '../features/sessions/sessionSlice';
+import { socketUpdateSession } from '../features/session/sessionSlice';
 import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 

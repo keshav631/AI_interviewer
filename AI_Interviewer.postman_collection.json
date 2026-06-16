@@ -1,0 +1,472 @@
+{
+  "info": {
+    "_postman_id": "a4b2f2d1-4d9e-4f77-9f2b-9d59c0f3d1c1",
+    "name": "AI Interviewer API",
+    "description": "Collection for testing the backend API and AI microservice endpoints for the AI Interviewer project.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Backend - Health",
+      "item": [
+        {
+          "name": "GET Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Simple backend health check."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Backend - Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "register"]
+            },
+            "description": "Create a new user."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) { pm.environment.set('authToken', json.token); }",
+                  "  if (json._id) { pm.environment.set('userId', json._id); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "login"]
+            },
+            "description": "Login and store the JWT token in authToken."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) { pm.environment.set('authToken', json.token); }",
+                  "  if (json._id) { pm.environment.set('userId', json._id); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Google Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"YOUR_GOOGLE_ID_TOKEN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/google",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "google"]
+            },
+            "description": "Google sign-in using an ID token from Google OAuth."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) { pm.environment.set('authToken', json.token); }",
+                  "  if (json._id) { pm.environment.set('userId', json._id); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "profile"]
+            },
+            "description": "Fetch the logged-in user's profile."
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Test User\",\n  \"email\": \"testuser@example.com\",\n  \"preferredRole\": \"MERN Stack Developer\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "profile"]
+            },
+            "description": "Update the logged-in user's profile."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Backend - Sessions",
+      "item": [
+        {
+          "name": "Get Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sessions"]
+            },
+            "description": "Fetch all sessions for the logged-in user."
+          }
+        },
+        {
+          "name": "Create Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"MERN Stack Developer\",\n  \"level\": \"Junior\",\n  \"interviewType\": \"coding-mix\",\n  \"count\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sessions"]
+            },
+            "description": "Create a new interview session."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 202 || pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.sessionId) { pm.environment.set('sessionId', json.sessionId); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Session By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sessions", "{{sessionId}}"]
+            },
+            "description": "Fetch one session by its ID."
+          }
+        },
+        {
+          "name": "End Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/end",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sessions", "{{sessionId}}", "end"]
+            },
+            "description": "End an active interview session early."
+          }
+        },
+        {
+          "name": "Delete Session",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sessions", "{{sessionId}}"]
+            },
+            "description": "Delete a session by ID."
+          }
+        },
+        {
+          "name": "Submit Answer - Audio or Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "questionIndex",
+                  "value": "0",
+                  "type": "text"
+                },
+                {
+                  "key": "code",
+                  "value": "function hello() { return 'hello'; }",
+                  "type": "text"
+                },
+                {
+                  "key": "audioFile",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/{{sessionId}}/submit-answer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sessions", "{{sessionId}}", "submit-answer"]
+            },
+            "description": "Submit either code, audio, or both. For audio, attach a file to the audioFile field."
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Service",
+      "item": [
+        {
+          "name": "AI Root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{aiServiceUrl}}/",
+              "host": ["{{aiServiceUrl}}"],
+              "path": [""]
+            },
+            "description": "Check that the AI microservice is running."
+          }
+        },
+        {
+          "name": "Generate Questions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"MERN Stack Developer\",\n  \"level\": \"Junior\",\n  \"count\": 5,\n  \"interview_type\": \"coding-mix\"\n}"
+            },
+            "url": {
+              "raw": "{{aiServiceUrl}}/generate-questions",
+              "host": ["{{aiServiceUrl}}"],
+              "path": ["generate-questions"]
+            },
+            "description": "Direct AI question generation test."
+          }
+        },
+        {
+          "name": "Generate Next Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"MERN Stack Developer\",\n  \"level\": \"Junior\",\n  \"interview_type\": \"coding-mix\",\n  \"previous_question\": \"Explain the React component lifecycle.\",\n  \"user_answer\": \"It manages mounting, updating, and unmounting.\",\n  \"user_code\": \"\",\n  \"ai_feedback\": \"Good conceptual understanding.\"\n}"
+            },
+            "url": {
+              "raw": "{{aiServiceUrl}}/generate-next-question",
+              "host": ["{{aiServiceUrl}}"],
+              "path": ["generate-next-question"]
+            },
+            "description": "Direct AI follow-up question test."
+          }
+        },
+        {
+          "name": "Transcribe Audio",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{aiServiceUrl}}/transcribe",
+              "host": ["{{aiServiceUrl}}"],
+              "path": ["transcribe"]
+            },
+            "description": "Upload an audio file to test transcription."
+          }
+        },
+        {
+          "name": "Evaluate Answer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Explain the difference between let, const, and var.\",\n  \"question_type\": \"oral\",\n  \"role\": \"MERN Stack Developer\",\n  \"level\": \"Junior\",\n  \"user_answer\": \"let and const are block scoped while var is function scoped.\",\n  \"user_code\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{aiServiceUrl}}/evaluate",
+              "host": ["{{aiServiceUrl}}"],
+              "path": ["evaluate"]
+            },
+            "description": "Direct AI evaluation test."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "aiServiceUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "authToken",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "sessionId",
+      "value": ""
+    }
+  ]
+}

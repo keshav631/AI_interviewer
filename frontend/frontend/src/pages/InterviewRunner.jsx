@@ -6,7 +6,7 @@ import {
   getSessionById,
   submitAnswer,
   endSession,
-} from "../features/sessions/sessionSlice";
+} from "../features/session/sessionSlice";
 import MonacoEditor from "@monaco-editor/react";
 import { toast } from "react-toastify";
 

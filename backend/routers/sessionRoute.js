@@ -7,8 +7,8 @@ import {
     getSessions, 
     submitAnswer
 } from "../controllers/sessionController.js";
-import { protect } from "../middleware/authMiddleware.js";
-import { uploadSingleAudio } from "../middleware/uploadMiddleware.js";
+import { protect } from "../middlewares/authMiddleware.js";
+import { uploadSingleAudio } from "../middlewares/uploadMiddleware.js";
 
 const router = express.Router();
 

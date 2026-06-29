@@ -32,4 +32,3 @@ createRoot(document.getElementById("root")).render(
     </Provider>
   </GoogleOAuthProvider>,
 );
-

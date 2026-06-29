@@ -77,53 +77,116 @@ async def root():
     return {"message":"Hello from AI Interviewer Microservice !","model":OLLAMA_MODEL_NAME}
 
 
-@app.post("/generate-questions",response_model=QuestionResponse)
-async def generate_questions(request:QuestionResquest):
+# @app.post("/generate-questions",response_model=QuestionResponse)
+# async def generate_questions(request:QuestionResquest):
    
-    try:
-        if request.interview_type=="coding-mix":
-            coding_count=int(request.count*0.2)
-            oral_oral=int(request.count)-int(coding_count)
+#     try:
+#         if request.interview_type=="coding-mix":
+#             coding_count=int(request.count*0.2)
+#             oral_oral=int(request.count)-int(coding_count)
 
-            intruction=(
-                f"The first {coding_count} questions MUST be coding challenge requiring function implementation."
-                f"The remaining {oral_oral} questions MUST be conceptual oral questions."
-            )
-        else :
-            intruction="All questions MUST be conceptual oral questions. Do Not generate any coding or implementation challenges."
+#             intruction=(
+#                 f"The first {coding_count} questions MUST be coding challenge requiring function implementation."
+#                 f"The remaining {oral_oral} questions MUST be conceptual oral questions."
+#             )
+#         else :
+#             intruction="All questions MUST be conceptual oral questions. Do Not generate any coding or implementation challenges."
 
-            system_prompt=(
-                "You are an expert technical interviewer. "
-                "Task: Generate interview questions. "
-                "CRITICAL: Do NOT include any introductory phrases like 'To help you understand...' or 'Here is a question:'. "
-                "CRITICAL: Start immediately with the question body. "
-                f"Instructions: {intruction} "
-                "Respond ONLY with a JSON object containing a 'questions' array of strings."
-            )
+#             system_prompt=(
+#                 "You are an expert technical interviewer. "
+#                 "Task: Generate interview questions. No conversational text or numbering "
+#                 "CRITICAL: Do NOT include any introductory phrases like 'To help you understand...' or 'Here is a question:'. "
+#                 "CRITICAL: Start immediately with the question body. "
+#                 f"Instructions: {intruction} "
+#                 "Respond ONLY with a JSON object containing a 'questions' array of strings."
+#             )
 
-            user_prompt=(
-                f"Generate exactly {request.count} unique, comprehensive interview questions for a {request.level} level {request.role}. "
-                "Preserve all necessary code context or scenario details within the single question string."
-            )
-            response=ollama.generate(
-                model=OLLAMA_MODEL_NAME,
-                prompt=user_prompt,
-                system=system_prompt,
-                format="json",
-                options={"temperature":0.6}
-            )
+#         user_prompt=(
+#                 f"Generate exactly {request.count} unique, comprehensive interview questions for a {request.level} level {request.role}. "
+#                 "Preserve all necessary code context or scenario details within the single question string."
+#             )
+#         response=ollama.generate(
+#                 model=OLLAMA_MODEL_NAME,
+#                 prompt=user_prompt,
+#                 system=system_prompt,
+#                 format="json",
+#                 options={"temperature":0.6}
+#             )
 
-            response_data = json.loads(response['response'].strip())
-            questions = response_data.get('questions', [])
+#         response_data = json.loads(response['response'].strip())
+#         questions = response_data.get('questions', [])
             
-            # Fallback if AI didn't return an array but a string
-            if isinstance(questions, str):
-                questions = [questions]
+#             # Fallback if AI didn't return an array but a string
+#         if isinstance(questions, str):
+#                 questions = [questions]
                 
-            return QuestionResponse(questions=questions[:request.count], model_used=OLLAMA_MODEL_NAME)
+#         return QuestionResponse(questions=questions[:request.count], model_used=OLLAMA_MODEL_NAME)
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500,detail=str(e))
+
+@app.post("/generate-questions", response_model=QuestionResponse)
+async def generate_questions(request: QuestionResquest):
+
+    try:
+
+        if request.interview_type == "coding-mix":
+            coding_count = int(request.count * 0.2)
+            oral_count = request.count - coding_count
+
+            instruction = (
+                f"The first {coding_count} questions MUST be coding challenges requiring function implementation. "
+                f"The remaining {oral_count} questions MUST be conceptual oral questions."
+            )
+
+        else:
+            instruction = (
+                "All questions MUST be conceptual oral questions. "
+                "Do NOT generate any coding or implementation challenges."
+            )
+
+        system_prompt = (
+            "You are an expert technical interviewer. "
+            "Task: Generate interview questions. No conversational text or numbering. "
+            "CRITICAL: Do NOT include any introductory phrases like "
+            "'To help you understand...' or 'Here is a question:'. "
+            "CRITICAL: Start immediately with the question body. "
+            f"Instructions: {instruction} "
+            "Respond ONLY with a JSON object containing a 'questions' array of strings."
+            "Each question string MUST start with its question number "
+            "(e.g. '1. ...', '2. ...', '3. ...')."
+        )
+
+        user_prompt = (
+            f"Generate exactly {request.count} unique, comprehensive interview questions "
+            f"for a {request.level} level {request.role}. "
+            "Preserve all necessary code context or scenario details within the single question string."
+        )
+
+        response = ollama.generate(
+            model=OLLAMA_MODEL_NAME,
+            prompt=user_prompt,
+            system=system_prompt,
+            format="json",
+            options={"temperature": 0.6}
+        )
+
+        response_data = json.loads(response["response"].strip())
+        questions = response_data.get("questions", [])
+
+        # Fallback if AI returns a single string
+        if isinstance(questions, str):
+            questions = [questions]
+
+        return QuestionResponse(
+            questions=questions[:request.count],
+            model_used=OLLAMA_MODEL_NAME
+        )
 
     except Exception as e:
-        raise HTTPException(status_code=500,detail=str(e))
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
+
     
 @app.post("/generate-next-question")
 async def generate_next_question(request:NextQuestionRequest):
@@ -159,6 +222,8 @@ async def generate_next_question(request:NextQuestionRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500,detail=str(e))
+
+
 @app.post("/transcribe")
 async def transcribe_audio(file:UploadFile=File(...)):
     try:
